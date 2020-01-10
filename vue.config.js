@@ -1,4 +1,6 @@
+const appConfig = require('./src/app-config.json')
 const path = require('path')
+var CopyWebpackPlugin = require('copy-webpack-plugin')
 const name = 'Vue Typescript Admin'
 
 module.exports = {
@@ -16,9 +18,31 @@ module.exports = {
       ]
     }
   },
+  devServer: {
+    port: 8010,
+    proxy: {
+        '^/static/': {
+            target: appConfig.apiUrl
+        }
+    }
+  },
+  configureWebpack: {
+    plugins: [
+        new CopyWebpackPlugin([{
+            from: path.join(__dirname + '/src', 'app-config.json'),
+            to: path.join(__dirname, 'dist/')
+        },
+        {
+            from: path.join(__dirname + '/src', 'web.config'),
+            to: path.join(__dirname, 'dist/')
+        }
+        ])
+    ]
+  },
   chainWebpack(config) {
     // Provide the app's title in webpack's name field, so that
     // it can be accessed in index.html to inject the correct title.
     config.set('name', name)
+    config.plugins.delete('fork-ts-checker');
   }
 }
