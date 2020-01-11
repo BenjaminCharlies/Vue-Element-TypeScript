@@ -42,7 +42,7 @@
           Please check that the URL you entered is correct, or click the button below to return to the homepage.
         </div>
         <a
-          href=""
+          href="/"
           class="text-404__return-home"
         >Back to home</a>
       </div>

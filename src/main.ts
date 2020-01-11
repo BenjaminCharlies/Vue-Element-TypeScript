@@ -14,6 +14,7 @@ import store from '@/store'
 import '@/icons/components'
 import '@/permission'
 
+Vue.use(require('vue-moment'))
 Vue.use(ElementUI)
 Vue.use(SvgIcon, {
   tagName: 'svg-icon',

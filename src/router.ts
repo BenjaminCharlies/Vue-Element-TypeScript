@@ -52,6 +52,36 @@ export default new Router({
       ]
     },
     {
+      path: '/session',
+      component: Layout,
+      redirect: '/session/list',
+      meta: {
+        title: 'Session',
+        icon: 'dashboard',
+        alwaysShow: true
+      },
+      children: [
+        {
+          path: 'list',
+          name: 'sessionList',
+          component: () => import(/* webpackChunkName: "session" */ '@/views/session/index.vue'),
+          meta: {
+            title: 'SessionList'
+          }
+        },
+        {
+          path: 'create',
+          name: 'createSession',
+          component: () => import('@/views/session/create.vue'),
+          meta: {
+            title: 'CreateSession',
+            activeMenu: '/session/list',
+            hidden: true
+          }
+        }
+      ]
+    },
+    {
       path: '*',
       redirect: '/404',
       meta: { hidden: true }
