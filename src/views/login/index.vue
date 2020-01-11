@@ -143,14 +143,11 @@ export default class extends Vue {
     (this.$refs.loginForm as ElForm).validate(async(valid: boolean) => {
       if (valid) {
         this.loading = true
-        await UserModule.Login(this.loginForm).then(()=>{this.$router.push({
+        await UserModule.Login(this.loginForm)
+        this.$router.push({
           path:  '/',
-        }).catch(ex => console.log(ex))})
-        
-        // Just to simulate the time of the request
-        setTimeout(() => {
-          this.loading = false
-        }, 0.5 * 1000)
+        }).catch(() => {})
+        this.loading = false
       } else {
         return false
       }

@@ -9,7 +9,7 @@ NProgress.configure({ showSpinner: false })
 
 const whiteList = ['/login']
 
-router.beforeEach((to: Route, _: Route, next: any) => {
+router.beforeEach(async(to: Route, _: Route, next: any) => {
   // Start progress bar
   NProgress.start()
 
@@ -24,7 +24,7 @@ router.beforeEach((to: Route, _: Route, next: any) => {
       if (UserModule.role === '') {
         try {
           // Get user info, including roles
-          UserModule.GetUserInfo()
+          await UserModule.GetUserInfo()
           // Set the replace: true, so the navigation will not leave a history record
           next({ ...to, replace: true })
         } catch (err) {
