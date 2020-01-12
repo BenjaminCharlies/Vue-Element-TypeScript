@@ -1,4 +1,4 @@
-import router from './router'
+import router from './router/router'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { Message } from 'element-ui'

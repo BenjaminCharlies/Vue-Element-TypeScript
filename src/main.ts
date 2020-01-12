@@ -8,7 +8,7 @@ import SvgIcon from 'vue-svgicon'
 import '@/styles/element-variables.scss'
 import '@/styles/index.scss'
 
-import router from '@/router'
+import router from '@/router/router'
 import App from '@/App.vue'
 import store from '@/store'
 import '@/icons/components'

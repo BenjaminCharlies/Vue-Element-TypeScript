@@ -3,9 +3,11 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span>Session</span>
-        <el-button style="float: right; padding: 3px 0" type="text">
-          Create Session
-        </el-button>
+        <router-link :to="'/session/create'">
+          <el-button style="float: right; padding: 3px 0" type="text">
+            Create Session
+          </el-button>
+        </router-link>
       </div>
       <div class="filter-container">
         <el-input style="width: 200px;" class="filter-item" />
@@ -13,10 +15,7 @@
           search
         </el-button>
         <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit">
-          add
-        </el-button>
-        <el-button class="filter-item" type="primary" icon="el-icon-download">
-          export
+          reset
         </el-button>
       </div>
       <el-table v-loading="listLoading" :data="sessionList">

@@ -1,5 +1,5 @@
 <template>
-  <session-detail :is-edit="false" />
+  <session-detail :is-edit="true" />
 </template>
 
 <script lang="ts">
@@ -11,5 +11,5 @@ import SessionDetail from './components/SessionDetail'
     SessionDetail
   }
 })
-export default class CreateSessionComponent extends Vue {}
+export default class EditSessionComponent extends Vue {}
 </script>
