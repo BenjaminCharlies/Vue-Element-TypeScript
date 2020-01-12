@@ -58,7 +58,7 @@ export default new Router({
       redirect: '/session/list',
       meta: {
         title: 'Session',
-        icon: 'dashboard',
+        icon: 'form',
         alwaysShow: true
       },
       children: [
