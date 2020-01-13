@@ -1,5 +1,5 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { SessionModel, ProductFeeMatrixModel, CityModel, VenueModel, FeeMatrixSubjectModel } from '@/api-client/client'
+import { SessionModel, ProductFeeMatrixModel, CityModel, VenueModel, FeeMatrixSubjectModel, SessionLateEntryChargeModel } from '@/api-client/client'
 import moment from 'moment'
 import { _Client } from '@/api-client'
 import { Form } from 'element-ui'
@@ -11,9 +11,7 @@ export default class SessionDetailComponent extends Vue {
   private cityList: CityModel[] = []
   private venueList: VenueModel[] = []
   private subjectList: FeeMatrixSubjectModel[] = []
-  private examTime: null | string[] = null
   private productId: string = ''
-  private registrationTime = []
   private moment = moment
   private examDatePickerOptions = {
     disabledDate(time: Date) {
@@ -30,36 +28,13 @@ export default class SessionDetailComponent extends Vue {
       return result
     }
   }
-  private validator = {
-    validateRegistrationTime: (rule: any, value: string[], callback: Function) => {
-      debugger
-      if (value.length < 2) {
-        callback(new Error('请输入密码'))
-      } else {
-        (this.$refs.sessionForm as Form).validateField('registrationTime')
-        callback()
-      }
-    }
-  }
   private sessionRules = {
-    examDate: [
-      { required: true, message: 'Please choose exam date', trigger: 'blur' }
-    ],
-    examTime: [
-      { required: true, message: 'Please choose exam time', trigger: 'blur' }
-    ],
-    'product.id': [
-      { required: true, message: 'Please choose product' }
-    ],
-    'city.id': [
-      { required: true, message: 'Please choose city' }
-    ],
-    seat: [
-      { required: true, message: 'please input seat', trigger: 'change' }
-    ],
-    registrationTime: [
-      { required: true, message: 'Please choose Registration Time', trigger: 'blur' }
-    ]
+    examDate: [ { required: true, message: 'Please choose exam date', trigger: 'blur' } ],
+    examTime: [ { required: true, message: 'Please choose exam time', trigger: 'blur' } ],
+    'product.id': [ { required: true, message: 'Please choose product' } ],
+    'city.id': [ { required: true, message: 'Please choose city' } ],
+    seat: [ { required: true, message: 'please input seat', trigger: 'change' } ],
+    registrationTime: [ { required: true, message: 'Please choose Registration Time', trigger: 'blur' } ]
 
   }
   private created() {
@@ -69,7 +44,6 @@ export default class SessionDetailComponent extends Vue {
       this.$set(this.sessionForm, 'city', { id: '' })
       this.$set(this.sessionForm, 'venue', { id: '' })
       this.$set(this.sessionForm, 'sessionSubjects', [])
-      // this.$set(this.sessionForm, 'registrationTime', [])
     }
   }
   private handleExamDateChange(examDate: Date): void {
@@ -78,7 +52,7 @@ export default class SessionDetailComponent extends Vue {
     })
   }
   private handleExamTimeChange(examTime: Date[]): void {
-    if (examTime && this.examTime) {
+    if (examTime) {
       this.sessionForm.startTime = this.sessionForm.examTime[0] = moment(examTime[0]).format('HH:mm')
       this.sessionForm.endTime = this.sessionForm.examTime[1] = moment(examTime[1]).format('HH:mm')
     } else {
@@ -102,6 +76,25 @@ export default class SessionDetailComponent extends Vue {
 
         })
       }
+      if (feeMatrix.feeMatrixLateEntryCharges) {
+        this.sessionForm.sessionLateEntryCharges = []
+        for (let i = 0; i < feeMatrix.feeMatrixLateEntryCharges.length; i++) {
+          let lateStage: { stage: number, name: string, fee: number, startDate: null | Date, endDate: null | Date, id: string } = {
+            stage: feeMatrix.feeMatrixLateEntryCharges[i].stage,
+            name: '',
+            fee: feeMatrix.feeMatrixLateEntryCharges[i].fee,
+            id: feeMatrix.feeMatrixLateEntryCharges[i].id,
+            startDate: null,
+            endDate: null
+          }
+          if (i === 0) {
+            lateStage.name = 'Standard Stage'
+          } else {
+            lateStage.name = 'Stage' + i
+          }
+          this.sessionForm.sessionLateEntryCharges.push(lateStage as unknown as SessionLateEntryChargeModel)
+        }
+      }
     })
   }
   private handleCityChange(cityId: string): void {
@@ -110,6 +103,20 @@ export default class SessionDetailComponent extends Vue {
     })
   }
   private handleSubjectListChange(val: any) {
+  }
+  private handleRegistrationTimeChange(registrationTime: Date[]): void {
+    if (registrationTime) {
+      this.sessionForm.publishStartTime = moment(this.sessionForm.registrationTime[0]).toDate()
+      this.sessionForm.publishEndTime = moment(this.sessionForm.registrationTime[1]).toDate()
+      this.sessionForm.sessionLateEntryCharges[0].startDate = registrationTime[0]
+      this.sessionForm.sessionLateEntryCharges[this.sessionForm.sessionLateEntryCharges.length - 1].endDate = registrationTime[1]
+    } else {
+      this.sessionForm.publishStartTime = null
+      this.sessionForm.publishEndTime = null
+    }
+  }
+  private handleLateStageTimeChange(endDate: Date, index: number) {
+    this.sessionForm.sessionLateEntryCharges[index + 1].startDate = endDate
   }
   private handleExclusiveChange() {
     if (this.sessionForm.isExclusiveSession) {

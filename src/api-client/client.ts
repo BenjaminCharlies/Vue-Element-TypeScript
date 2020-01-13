@@ -2936,8 +2936,8 @@ export class SessionModel implements ISessionModel {
     endTime!: string;
     seat!: number;
     registered!: number;
-    publishStartTime!: Date;
-    publishEndTime!: Date;
+    publishStartTime!: Date | null;
+    publishEndTime!: Date | null;
     canSend!: boolean;
     isExclusiveSession!: boolean;
     pin?: string | undefined;
@@ -2949,6 +2949,8 @@ export class SessionModel implements ISessionModel {
     city?: CityModel | undefined;
     sessionSubjects?: SessionSubjectModel[] | undefined;
     sessionLateEntryCharges?: SessionLateEntryChargeModel[] | undefined;
+    examTime: any;
+  registrationTime: any;
 
     constructor(data?: ISessionModel) {
         if (data) {
@@ -3044,8 +3046,8 @@ export interface ISessionModel {
     endTime: string;
     seat: number;
     registered: number;
-    publishStartTime: Date;
-    publishEndTime: Date;
+    publishStartTime: Date | null;
+    publishEndTime: Date | null;
     canSend: boolean;
     isExclusiveSession: boolean;
     pin?: string | undefined;

@@ -13,7 +13,8 @@ import App from '@/App.vue'
 import store from '@/store'
 import '@/icons/components'
 import '@/permission'
-
+import CollapseTransition from 'element-ui/lib/transitions/collapse-transition'
+Vue.component(CollapseTransition.name, CollapseTransition)
 Vue.use(require('vue-moment'))
 Vue.use(ElementUI)
 Vue.use(SvgIcon, {
