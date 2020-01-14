@@ -7,6 +7,145 @@
 //----------------------
 // ReSharper disable InconsistentNaming
 
+export class ActionOperationLogClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : <any>window;
+        this.baseUrl = baseUrl ? baseUrl : "http://localhost:8810";
+    }
+
+    getActionOperationLogListByDataId(dataId: string): Promise<ActionOperationLogModel[]> {
+        let url_ = this.baseUrl + "/api/actionoperationlog/{dataId}";
+        if (dataId === undefined || dataId === null)
+            throw new Error("The parameter 'dataId' must be defined.");
+        url_ = url_.replace("{dataId}", encodeURIComponent("" + dataId)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ = <RequestInit>{
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetActionOperationLogListByDataId(_response);
+        });
+    }
+
+    protected processGetActionOperationLogListByDataId(response: Response): Promise<ActionOperationLogModel[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ActionOperationLogModel.fromJS(item));
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ActionOperationLogModel[]>(<any>null);
+    }
+}
+
+export class AdminUserClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : <any>window;
+        this.baseUrl = baseUrl ? baseUrl : "http://localhost:8810";
+    }
+
+    search(search: SearchAdminUserModel): Promise<PagedResultOfAdminUserModel> {
+        let url_ = this.baseUrl + "/api/adminuser/search";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(search);
+
+        let options_ = <RequestInit>{
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSearch(_response);
+        });
+    }
+
+    protected processSearch(response: Response): Promise<PagedResultOfAdminUserModel> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagedResultOfAdminUserModel.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PagedResultOfAdminUserModel>(<any>null);
+    }
+
+    add(model: AddAdminUserModel): Promise<boolean> {
+        let url_ = this.baseUrl + "/api/adminuser";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ = <RequestInit>{
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAdd(_response);
+        });
+    }
+
+    protected processAdd(response: Response): Promise<boolean> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<boolean>(<any>null);
+    }
+}
+
 export class ApplicationClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -386,25 +525,17 @@ export class AuthClient {
         this.baseUrl = baseUrl ? baseUrl : "http://localhost:8810";
     }
 
-    authenticate(loginType: LoginType | undefined, mobile: string | null | undefined, mobileOrEmail: string | null | undefined, password: string | null | undefined, verificationCode: string | null | undefined): Promise<AdminUserModel> {
-        let url_ = this.baseUrl + "/api/auth/auth?";
-        if (loginType === null)
-            throw new Error("The parameter 'loginType' cannot be null.");
-        else if (loginType !== undefined)
-            url_ += "LoginType=" + encodeURIComponent("" + loginType) + "&"; 
-        if (mobile !== undefined)
-            url_ += "Mobile=" + encodeURIComponent("" + mobile) + "&"; 
-        if (mobileOrEmail !== undefined)
-            url_ += "MobileOrEmail=" + encodeURIComponent("" + mobileOrEmail) + "&"; 
-        if (password !== undefined)
-            url_ += "Password=" + encodeURIComponent("" + password) + "&"; 
-        if (verificationCode !== undefined)
-            url_ += "VerificationCode=" + encodeURIComponent("" + verificationCode) + "&"; 
+    authenticate(model: AdminLoginModel): Promise<AuthenticateModel> {
+        let url_ = this.baseUrl + "/api/auth/auth";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(model);
+
         let options_ = <RequestInit>{
+            body: content_,
             method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/json"
             }
         };
@@ -414,14 +545,14 @@ export class AuthClient {
         });
     }
 
-    protected processAuthenticate(response: Response): Promise<AdminUserModel> {
+    protected processAuthenticate(response: Response): Promise<AuthenticateModel> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = AdminUserModel.fromJS(resultData200);
+            result200 = AuthenticateModel.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -429,7 +560,7 @@ export class AuthClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<AdminUserModel>(<any>null);
+        return Promise.resolve<AuthenticateModel>(<any>null);
     }
 
     out(): Promise<void> {
@@ -2480,6 +2611,445 @@ export class VenueClient {
     }
 }
 
+export class ActionOperationLogModel implements IActionOperationLogModel {
+    source!: SourceType;
+    userName?: string | undefined;
+    userRoleType?: AdminRoleType | undefined;
+    operaDateTime?: Date | undefined;
+    operationType!: ActionOperationType;
+
+    constructor(data?: IActionOperationLogModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.source = _data["source"];
+            this.userName = _data["userName"];
+            this.userRoleType = _data["userRoleType"];
+            this.operaDateTime = _data["operaDateTime"] ? new Date(_data["operaDateTime"].toString()) : <any>undefined;
+            this.operationType = _data["operationType"];
+        }
+    }
+
+    static fromJS(data: any): ActionOperationLogModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new ActionOperationLogModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["source"] = this.source;
+        data["userName"] = this.userName;
+        data["userRoleType"] = this.userRoleType;
+        data["operaDateTime"] = this.operaDateTime ? this.operaDateTime.toISOString() : <any>undefined;
+        data["operationType"] = this.operationType;
+        return data; 
+    }
+}
+
+export interface IActionOperationLogModel {
+    source: SourceType;
+    userName?: string | undefined;
+    userRoleType?: AdminRoleType | undefined;
+    operaDateTime?: Date | undefined;
+    operationType: ActionOperationType;
+}
+
+export enum SourceType {
+    Customer = "Customer",
+    Admin = "Admin",
+}
+
+export enum AdminRoleType {
+    Staff = "Staff",
+    Manager = "Manager",
+    Admin = "Admin",
+}
+
+export enum ActionOperationType {
+    OrderSubmitted = "OrderSubmitted",
+    OrderPaidSuccessfully = "OrderPaidSuccessfully",
+    OrderPaidFailed = "OrderPaidFailed",
+    ApplicationRegistered = "ApplicationRegistered",
+    ApplicationConfirmationLetterReleased = "ApplicationConfirmationLetterReleased",
+    ApplicationCancellationRequested = "ApplicationCancellationRequested",
+    ApplicationCancellationRejected = "ApplicationCancellationRejected",
+    ApplicationCancellationApproved = "ApplicationCancellationApproved",
+    ApplicationWithdrawn = "ApplicationWithdrawn",
+    RefundCreated = "RefundCreated",
+    RefundSubmittedForApproval = "RefundSubmittedForApproval",
+    RefundReturned = "RefundReturned",
+    RefundApproved = "RefundApproved",
+    FeeMatrixCreated = "FeeMatrixCreated",
+    FeeMatrixSubmitted = "FeeMatrixSubmitted",
+    FeeMatrixApproved = "FeeMatrixApproved",
+    FeeMatrixPublished = "FeeMatrixPublished",
+    FeeMatrixRejected = "FeeMatrixRejected",
+    FeeMatrixEdited = "FeeMatrixEdited",
+}
+
+export class PagedResultOfAdminUserModel implements IPagedResultOfAdminUserModel {
+    list?: AdminUserModel[] | undefined;
+    pageSize!: number;
+    pageIndex!: number;
+    recordCount!: number;
+    pageCount!: number;
+
+    constructor(data?: IPagedResultOfAdminUserModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["list"])) {
+                this.list = [] as any;
+                for (let item of _data["list"])
+                    this.list!.push(AdminUserModel.fromJS(item));
+            }
+            this.pageSize = _data["pageSize"];
+            this.pageIndex = _data["pageIndex"];
+            this.recordCount = _data["recordCount"];
+            this.pageCount = _data["pageCount"];
+        }
+    }
+
+    static fromJS(data: any): PagedResultOfAdminUserModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagedResultOfAdminUserModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.list)) {
+            data["list"] = [];
+            for (let item of this.list)
+                data["list"].push(item.toJSON());
+        }
+        data["pageSize"] = this.pageSize;
+        data["pageIndex"] = this.pageIndex;
+        data["recordCount"] = this.recordCount;
+        data["pageCount"] = this.pageCount;
+        return data; 
+    }
+}
+
+export interface IPagedResultOfAdminUserModel {
+    list?: AdminUserModel[] | undefined;
+    pageSize: number;
+    pageIndex: number;
+    recordCount: number;
+    pageCount: number;
+}
+
+export class AdminUserModel implements IAdminUserModel {
+    id!: string;
+    email?: string | undefined;
+    userName?: string | undefined;
+    roleType!: AdminRoleType;
+    status!: AdminStatus;
+
+    constructor(data?: IAdminUserModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.email = _data["email"];
+            this.userName = _data["userName"];
+            this.roleType = _data["roleType"];
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): AdminUserModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new AdminUserModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["email"] = this.email;
+        data["userName"] = this.userName;
+        data["roleType"] = this.roleType;
+        data["status"] = this.status;
+        return data; 
+    }
+}
+
+export interface IAdminUserModel {
+    id: string;
+    email?: string | undefined;
+    userName?: string | undefined;
+    roleType: AdminRoleType;
+    status: AdminStatus;
+}
+
+export enum AdminStatus {
+    Available = "Available",
+    NotAvailable = "NotAvailable",
+}
+
+export class QueryModel implements IQueryModel {
+    pageIndex!: number;
+    pageSize!: number;
+    sorts?: Sort[] | undefined;
+    filters?: Filter[] | undefined;
+
+    constructor(data?: IQueryModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.pageIndex = _data["pageIndex"];
+            this.pageSize = _data["pageSize"];
+            if (Array.isArray(_data["sorts"])) {
+                this.sorts = [] as any;
+                for (let item of _data["sorts"])
+                    this.sorts!.push(Sort.fromJS(item));
+            }
+            if (Array.isArray(_data["filters"])) {
+                this.filters = [] as any;
+                for (let item of _data["filters"])
+                    this.filters!.push(Filter.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): QueryModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new QueryModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["pageIndex"] = this.pageIndex;
+        data["pageSize"] = this.pageSize;
+        if (Array.isArray(this.sorts)) {
+            data["sorts"] = [];
+            for (let item of this.sorts)
+                data["sorts"].push(item.toJSON());
+        }
+        if (Array.isArray(this.filters)) {
+            data["filters"] = [];
+            for (let item of this.filters)
+                data["filters"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IQueryModel {
+    pageIndex: number;
+    pageSize: number;
+    sorts?: Sort[] | undefined;
+    filters?: Filter[] | undefined;
+}
+
+export class SearchAdminUserModel extends QueryModel implements ISearchAdminUserModel {
+    email?: string | undefined;
+    userName?: string | undefined;
+    roleType?: AdminRoleType | undefined;
+
+    constructor(data?: ISearchAdminUserModel) {
+        super(data);
+    }
+
+    init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.email = _data["email"];
+            this.userName = _data["userName"];
+            this.roleType = _data["roleType"];
+        }
+    }
+
+    static fromJS(data: any): SearchAdminUserModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new SearchAdminUserModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["email"] = this.email;
+        data["userName"] = this.userName;
+        data["roleType"] = this.roleType;
+        super.toJSON(data);
+        return data; 
+    }
+}
+
+export interface ISearchAdminUserModel extends IQueryModel {
+    email?: string | undefined;
+    userName?: string | undefined;
+    roleType?: AdminRoleType | undefined;
+}
+
+export class Sort implements ISort {
+    field?: string | undefined;
+    desc!: boolean;
+
+    constructor(data?: ISort) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.field = _data["field"];
+            this.desc = _data["desc"];
+        }
+    }
+
+    static fromJS(data: any): Sort {
+        data = typeof data === 'object' ? data : {};
+        let result = new Sort();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["field"] = this.field;
+        data["desc"] = this.desc;
+        return data; 
+    }
+}
+
+export interface ISort {
+    field?: string | undefined;
+    desc: boolean;
+}
+
+export class Filter implements IFilter {
+    field?: string | undefined;
+    value?: any | undefined;
+
+    constructor(data?: IFilter) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.field = _data["field"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): Filter {
+        data = typeof data === 'object' ? data : {};
+        let result = new Filter();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["field"] = this.field;
+        data["value"] = this.value;
+        return data; 
+    }
+}
+
+export interface IFilter {
+    field?: string | undefined;
+    value?: any | undefined;
+}
+
+export class AddAdminUserModel implements IAddAdminUserModel {
+    userName?: string | undefined;
+    email?: string | undefined;
+    password?: string | undefined;
+    confirmPassword?: string | undefined;
+    roleType!: AdminRoleType;
+
+    constructor(data?: IAddAdminUserModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userName = _data["userName"];
+            this.email = _data["email"];
+            this.password = _data["password"];
+            this.confirmPassword = _data["confirmPassword"];
+            this.roleType = _data["roleType"];
+        }
+    }
+
+    static fromJS(data: any): AddAdminUserModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddAdminUserModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userName"] = this.userName;
+        data["email"] = this.email;
+        data["password"] = this.password;
+        data["confirmPassword"] = this.confirmPassword;
+        data["roleType"] = this.roleType;
+        return data; 
+    }
+}
+
+export interface IAddAdminUserModel {
+    userName?: string | undefined;
+    email?: string | undefined;
+    password?: string | undefined;
+    confirmPassword?: string | undefined;
+    roleType: AdminRoleType;
+}
+
 export class PagedResultOfApplicationListModel implements IPagedResultOfApplicationListModel {
     list?: ApplicationListModel[] | undefined;
     pageSize!: number;
@@ -2735,86 +3305,6 @@ export enum ApplicationRefundStatus {
     Approved = "Approved",
 }
 
-export class Sort implements ISort {
-    field?: string | undefined;
-    desc!: boolean;
-
-    constructor(data?: ISort) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.field = _data["field"];
-            this.desc = _data["desc"];
-        }
-    }
-
-    static fromJS(data: any): Sort {
-        data = typeof data === 'object' ? data : {};
-        let result = new Sort();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["field"] = this.field;
-        data["desc"] = this.desc;
-        return data; 
-    }
-}
-
-export interface ISort {
-    field?: string | undefined;
-    desc: boolean;
-}
-
-export class Filter implements IFilter {
-    field?: string | undefined;
-    value?: any | undefined;
-
-    constructor(data?: IFilter) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.field = _data["field"];
-            this.value = _data["value"];
-        }
-    }
-
-    static fromJS(data: any): Filter {
-        data = typeof data === 'object' ? data : {};
-        let result = new Filter();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["field"] = this.field;
-        data["value"] = this.value;
-        return data; 
-    }
-}
-
-export interface IFilter {
-    field?: string | undefined;
-    value?: any | undefined;
-}
-
 export class ApplicationModel implements IApplicationModel {
     id?: string | undefined;
     code!: number;
@@ -2936,8 +3426,8 @@ export class SessionModel implements ISessionModel {
     endTime!: string;
     seat!: number;
     registered!: number;
-    publishStartTime!: Date | null;
-    publishEndTime!: Date | null;
+    publishStartTime!: Date;
+    publishEndTime!: Date;
     canSend!: boolean;
     isExclusiveSession!: boolean;
     pin?: string | undefined;
@@ -2949,8 +3439,6 @@ export class SessionModel implements ISessionModel {
     city?: CityModel | undefined;
     sessionSubjects?: SessionSubjectModel[] | undefined;
     sessionLateEntryCharges?: SessionLateEntryChargeModel[] | undefined;
-    examTime: any;
-  registrationTime: any;
 
     constructor(data?: ISessionModel) {
         if (data) {
@@ -3046,8 +3534,8 @@ export interface ISessionModel {
     endTime: string;
     seat: number;
     registered: number;
-    publishStartTime: Date | null;
-    publishEndTime: Date | null;
+    publishStartTime: Date;
+    publishEndTime: Date;
     canSend: boolean;
     isExclusiveSession: boolean;
     pin?: string | undefined;
@@ -4159,7 +4647,7 @@ export interface IUpdateApplicationStatusModel {
     status: ApplicationStatus;
 }
 
-export class AdminUserModel implements IAdminUserModel {
+export class AuthenticateModel implements IAuthenticateModel {
     id!: string;
     role!: AdminRoleType;
     userName?: string | undefined;
@@ -4169,7 +4657,7 @@ export class AdminUserModel implements IAdminUserModel {
     expires!: Date;
     data?: any | undefined;
 
-    constructor(data?: IAdminUserModel) {
+    constructor(data?: IAuthenticateModel) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -4191,9 +4679,9 @@ export class AdminUserModel implements IAdminUserModel {
         }
     }
 
-    static fromJS(data: any): AdminUserModel {
+    static fromJS(data: any): AuthenticateModel {
         data = typeof data === 'object' ? data : {};
-        let result = new AdminUserModel();
+        let result = new AuthenticateModel();
         result.init(data);
         return result;
     }
@@ -4212,7 +4700,7 @@ export class AdminUserModel implements IAdminUserModel {
     }
 }
 
-export interface IAdminUserModel {
+export interface IAuthenticateModel {
     id: string;
     role: AdminRoleType;
     userName?: string | undefined;
@@ -4223,15 +4711,44 @@ export interface IAdminUserModel {
     data?: any | undefined;
 }
 
-export enum AdminRoleType {
-    Staff = "Staff",
-    Manager = "Manager",
-    Admin = "Admin",
+export class AdminLoginModel implements IAdminLoginModel {
+    email?: string | undefined;
+    password?: string | undefined;
+
+    constructor(data?: IAdminLoginModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.email = _data["email"];
+            this.password = _data["password"];
+        }
+    }
+
+    static fromJS(data: any): AdminLoginModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new AdminLoginModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["email"] = this.email;
+        data["password"] = this.password;
+        return data; 
+    }
 }
 
-export enum LoginType {
-    VerificationCode = "VerificationCode",
-    Password = "Password",
+export interface IAdminLoginModel {
+    email?: string | undefined;
+    password?: string | undefined;
 }
 
 export class FeeMatrixModel implements IFeeMatrixModel {

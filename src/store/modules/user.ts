@@ -2,6 +2,7 @@ import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-dec
 import { _Client } from '../../api-client/index'
 import { getToken, setToken, removeToken } from '@/utils/cookies'
 import store from '@/store'
+import { AdminLoginModel } from '@/api-client/client'
 
 export interface IUserState {
   token: string
@@ -49,7 +50,7 @@ class User extends VuexModule implements IUserState {
     let { username, password } = userInfo
     username = username.trim()
     try {
-      let { token } = await _Client.authClient.authenticate(undefined, undefined, username, password, undefined)
+      let { token } = await _Client.authClient.authenticate(new AdminLoginModel({ email: username, password: password }))
       if (token) {
         setToken(token)
         this.SET_TOKEN(token)
